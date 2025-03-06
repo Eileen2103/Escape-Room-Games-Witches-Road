@@ -46,17 +46,43 @@ class GameScene extends Phaser.Scene {
   create() {
     /*this.scene.pause("scene-game");*/
 
+
+    var camera = this.cameras.main;
     this.bg = this.add.image(0, 0, "bg").setOrigin(0, 0);
+
+
 
     this.boiler = this.add.sprite(this.scale.width - (this.scale.width / 5), 300, "boiler").setDepth(2)  // (x, y) konumu
       .setOrigin(0.5)
       .setScale(0.2); // %50 küçült
+    var objectWidth = this.boiler.displayWidth;
+    var objectHeight = this.boiler.displayHeight;
     this.boiler.setInteractive({ useHandCursor: true });
     this.boiler.on('pointerover', () => { });
     this.boiler.on('pointerout', () => { });
-    this.boiler.on("pointerdown", () => {
-      console.log("pressed");
-    });
+    this.boiler.on('pointerdown', function () {
+
+      var zoomX = screen.width / objectWidth;
+      var zoomY = screen.width / objectHeight;
+      var targetZoom = Math.min(zoomX, zoomY); // Yakınlaşma oranı
+      var scrollX = this.boiler.x - (screen.width / 2) / targetZoom;
+      var scrollY = this.boiler.y - (screen.width / 2) / targetZoom;
+      /*var zoomX = this.boiler.x - (camera.width / 0.5) / targetZoom;
+      var zoomY = this.boiler.y - (camera.height / 0.5) / targetZoom;
+      */
+
+      // Kamera animasyonunu başlat
+      this.tweens.add({
+        targets: camera,
+        zoom: targetZoom,
+        scrollX: scrollX,
+        scrollY: scrollY,
+        duration: 1000,
+        ease: 'Power2'
+      });
+    }, this);
+
+
 
     this.broom = this.add.sprite(this.scale.width / 3, 430, "broom").setDepth(2)
       .setOrigin(0.5)
@@ -124,6 +150,9 @@ class GameScene extends Phaser.Scene {
         });
       }
     });
+
+
+
 
 
     this.bg.visible = false;
